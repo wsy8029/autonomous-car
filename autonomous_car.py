@@ -21,6 +21,8 @@ class MODI_Connector:
             print(f"Number of connected Modules: {self.length}")
             #raise ValueError('Cannot initialize MODI modules.')
         print("----------------------------------------------------------")
+    #def __enter__
+    #def __exit__
 
 class AutonomousCar(object):
     
@@ -87,7 +89,10 @@ def show_image(title, frame):
 
 if __name__ == '__main__':
     """nb_modules == number of modules to use, excluding the network module."""
+    #with MODI_Connector(nb_modules=2) as m
+     
     m = MODI_Connector(nb_modules=2)
+    #mot modify
     mot = m.bundle.motors[0]
     car = AutonomousCar()
     car.drive()
