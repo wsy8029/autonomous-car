@@ -31,7 +31,6 @@ class AutonomousCar(object):
             #raise ValueError('Cannot initialize MODI modules.')
         print("----------------------------------------------------------")
         
-    
     def __exit__(self,type,value,traceback):
         self.bundle.close()
         
@@ -88,3 +87,4 @@ class AutonomousCar(object):
     
 def show_image(title, frame):
     cv2.imshow(title, frame)
+    
