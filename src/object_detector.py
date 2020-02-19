@@ -9,9 +9,9 @@ from PIL import Image
 class ObjectDetector(object):
     def __init__(self,
                  car=None,
-                 model='./road_signs_quantized_edgetpu.tflite',
-                 #model='./road_signs_quantized.tflite',
-                 label='./road_sign_labels.txt',
+                 model='../models/road_signs_quantized_edgetpu.tflite',
+                 #model='../road_signs_quantized.tflite',
+                 label='../models/road_sign_labels.txt',
                  width=320,
                  height=240):
         # model: This MUST be a tflite model that was specifically compiled for Edge TPU.
