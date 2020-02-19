@@ -5,6 +5,31 @@ from lane_tracker import LaneTracker
 from object_detector import ObjectDetector
 
 class AutonomousCar(object):
+
+    class MODI_Connector:
+
+        def __init__(self, nb_modules=0):
+            print('Start initializing MODI instance')
+            self.bundle = None
+            self.length = 0
+        
+        def __enter__(self):
+            self.bundle = modi.MODI()
+            self.length = len(self.bundle.modules)
+
+            print("----------------------------------------------------------")
+            if len(self.bundle.modules) == nb_modules:
+                print("Modules are connected:")
+                for module in self.bundle.modules:
+                    print(type(module))
+            else:
+                print("Modules are not connected properly!")
+                print(f"Number of connected Modules: {self.length}")
+                #raise ValueError('Cannot initialize MODI modules.')
+            print("----------------------------------------------------------")
+        
+        def __exit__(self,type,value,traceback):
+            del self
     
     def __init__(self):
         self.camera = cv2.VideoCapture(-1)
@@ -14,30 +39,13 @@ class AutonomousCar(object):
         
         self.tracker = LaneTracker(self)
         self.detector = ObjectDetector(self)
-
-        self.bundle = None
-        self.length = 0
     
-    def __enter__(self):
-        print("----------------------------------------------------------")
-        if len(self.bundle.modules) == nb_modules:
-            print("Modules are connected:")
-            for module in self.bundle.modules:
-                print(type(module))
-        else:
-            print("Modules are not connected properly!")
-            print(f"Number of connected Modules: {self.length}")
-            self.__exit__(self,None,None)
-            #raise ValueError('Cannot initialize MODI modules.')
-        print("----------------------------------------------------------")
-        
-    def __exit__(self,type,value,traceback):
-        self.bundle.close()
         
     def run(self):
         """nb_modules == number of modules to use, excluding the network module."""
-        m = MODI_Connector(nb_modules=1)
-        mot = m.bundle.motors[0]
+        with MODI_Connector(nb_modules=1) as m:
+            mot = m.bundle.motors[0]
+        
         i = 0
         while self.camera.isOpened():
             _, image_lane = self.camera.read()
