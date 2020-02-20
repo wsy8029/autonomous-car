@@ -4,8 +4,39 @@ import modi
 from lane_tracker import LaneTracker
 from object_detector import ObjectDetector
 
-class AutonomousCar(object):
+
+
+class MODI_Connector(object):
+
+    def __init__(self, nb_modules=0):
+        print('Start initializing MODI instance')
+        self.bundle = None
+        self.length = nb_modules
     
+    def __enter__(self):
+        self.bundle = modi.MODI()
+        print("----------------------------------------------------------")
+        
+        if len(self.bundle.modules) == self.length:
+            print("Modules are connected:")
+            for module in self.bundle.modules:
+                print(type(module))
+            print(self)
+            
+        else:
+            print("Modules are not connected properly!")
+            print("Number of connected Modules: {self.length}")
+            print("----------------------------------------------------------")
+            self.__exit__(self,None,None)
+            
+        print("----------------------------------------------------------")
+        
+        return self.bundle
+        
+    def __exit__(self,type,value,traceback):
+        del self
+    
+class AutonomousCar(object):
     def __init__(self):
         self.camera = cv2.VideoCapture(-1)
         self.camera.set(3, 320)
@@ -14,30 +45,14 @@ class AutonomousCar(object):
         
         self.tracker = LaneTracker(self)
         self.detector = ObjectDetector(self)
-
-        self.bundle = None
-        self.length = 0
-    
-    def __enter__(self):
-        print("----------------------------------------------------------")
-        if len(self.bundle.modules) == nb_modules:
-            print("Modules are connected:")
-            for module in self.bundle.modules:
-                print(type(module))
-        else:
-            print("Modules are not connected properly!")
-            print(f"Number of connected Modules: {self.length}")
-            self.__exit__(self,None,None)
-            #raise ValueError('Cannot initialize MODI modules.')
-        print("----------------------------------------------------------")
         
-    def __exit__(self,type,value,traceback):
-        self.bundle.close()
+        self.mot = None
         
     def run(self):
         """nb_modules == number of modules to use, excluding the network module."""
-        m = MODI_Connector(nb_modules=1)
-        mot = m.bundle.motors[0]
+        with MODI_Connector(1) as m:
+            self.mot = m.motors[0]
+        
         i = 0
         while self.camera.isOpened():
             _, image_lane = self.camera.read()
@@ -69,17 +84,17 @@ class AutonomousCar(object):
         return image
     
     def turn_left(self):
-        mot.set_torque(30,30)
+        self.mot.set_torque(30,30)
     
     def turn_right(self):
-        mot.set_torque(-30,-30)
+        self.mot.set_torque(-30,-30)
     
     def go_straight(self):
-        mot.set_torque(20,20)
+        self.mot.set_torque(20,20)
         time.sleep(0.01)
     
     def stop(self):
-        mot.set_torque(0,0)
+        self.mot.set_torque(0,0)
         time.sleep(0.01)
     
         
